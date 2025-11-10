@@ -1,11 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Management</title>
+    <style>
+        .content {
+            width: 80%;
+            height: 100%;
+            float: left;
+        }
+
+        div {
+            padding: 10px;
+        }
+
+        .modal {
+            /* 스타일 - customize */
+            background-color: rgba(0, 0, 0, 0.7);
+            pointer-events: none;
+            padding: 20px;
+
+            /* 트랜지션 효과 */
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+
+            /* 화면 전체를 덮게하는 코드 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+
+            /* 중앙에 오게하는 코드 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-header,
+        .modal-title,
+        .btn-close {
+            font-size: 28px;
+            font-weight: bold;
+            display: inline;
+        }
+
+        .modal-body .modal-input {
+            display: block;
+            margin-top: 20px;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .modal-content {
+            /* 스타일 - customize */
+            max-width: 500px;
+            width: 100%;
+            height: 300px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+
+            /* 트랜지션 효과 */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+            transform: scale(0.8);
+        }
+
+        .modal.show {
+            /* 모달이 열렸을 때 보여지게 하는 코드 */
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal.show .modal-content {
+            /* 모달이 열렸을 때 보여지게 하는 코드 */
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .btn-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-close:hover {
+            color: black;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // elements (Add Modal)
+            var modalBtn = document.getElementById("btn-modal");
+            var addModal = document.getElementById("addModal");
+            var closeAddBtn = document.getElementById("btn-close"); // btn-close는 addModal의 닫기 버튼
+
+            // elements (Edit Modal)
+            var editModal = document.getElementById("editModal");
+            var closeEditBtn = document.getElementById("btn-edit-close"); // 수정 모달의 닫기 버튼
+
+            // functions
+            function toggleAddModal() {
+                addModal.classList.toggle("show");
+            }
+            function toggleEditModal() {
+                editModal.classList.toggle("show");
+            }
+
+            // events
+            modalBtn.addEventListener("click", toggleAddModal);
+            closeAddBtn.addEventListener("click", toggleAddModal);
+            closeEditBtn.addEventListener("click", toggleEditModal); // 수정 모달 닫기 이벤트
+
+            window.addEventListener("click", function (event) {
+                // 모달의 검은색 배경 부분이 클릭된 경우 닫히도록 하는 코드
+                if (event.target === addModal) {
+                    toggleAddModal();
+                }
+                if (event.target === editModal) { // 수정 모달 배경 클릭 시 닫기
+                    toggleEditModal();
+                }
+            });
+        });
+
+        window.onload = function () {
+            //getStudents();
+            let btnStu = document.getElementById("btnStu");
+            let btnAdd = document.getElementById("btn-Add");
+            let btnSave = document.getElementById("btn-Save"); // 저장 버튼 변수 추가
+
+            var addModal = document.getElementById("addModal");
+            var editModal = document.getElementById("editModal"); // 수정 모달 변수 추가
+
+            function toggleAddModal() {
+                addModal.classList.toggle("show");
+            }
+            function toggleEditModal() {
+                editModal.classList.toggle("show");
+            }
+
+            btnStu.addEventListener("click", function (event) {
+                getStudents();
+            });
+            btnAdd.addEventListener("click", function (event) {
+                postData();
+                toggleAddModal();
+            });
+            btnSave.addEventListener("click", function (event) { // 저장 버튼 이벤트 추가
+                saveData(); // 데이터를 저장(PUT)하는 함수 호출
+                toggleEditModal();
+            });
+        };
+
+        function getStudents() {
+            const xhr = new XMLHttpRequest();
+
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    const res = JSON.parse(xhr.response);
+                    // contents 변수가 없으므로, ID로 직접 가져옵니다.
+                    document.getElementById('contents').innerHTML = makeList(res);
+                } else {
+                    console.log(xhr.status, xhr.statusText);
+                }
+            };
+
+            xhr.open("GET", "https://6909a7ab2d902d0651b49af9.mockapi.io/SampleProduct");
+            xhr.setRequestHeader("content-type", "application/json");
+            xhr.send();
+        }
+
+        function postData() {
+            let product = document.getElementById("product");
+            let price = document.getElementById("price");
+            let material = document.getElementById("material");
+            let count = document.getElementById("count");
+
+            const xhr = new XMLHttpRequest();
+
+            xhr.onload = () => {
+                if (xhr.status == 201) {
+                    product.value = "";
+                    price.value = "";
+                    material.value = "";
+                    count.value = "";
+                    // const res = JSON.parse(xhr.response);
+                    getStudents();
+                } else {
+                    console.log(xhr.status, xhr.statusText);
+                }
+            };
+
+            xhr.open("POST", "https://6909a7ab2d902d0651b49af9.mockapi.io/SampleProduct");
+            xhr.setRequestHeader("content-type", "application/json; charset=UTF-8");
+            const data = { product: product.value, price: price.value, material: material.value, count: count.value };
+            xhr.send(JSON.stringify(data));
+        }
+
+        function deleteData(id) {
+            if (!confirm("Do you really want to delete?")) {
+                return;
+            }
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("DELETE", "https://6909a7ab2d902d0651b49af9.mockapi.io/SampleProduct/" + id);
+            xhr.setRequestHeader("content-type", "application/json; charset=UTF-8");
+            xhr.send();
+
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    const res = JSON.parse(xhr.response);
+                    console.log(res);
+                    getStudents();
+                } else {
+                    console.log(xhr.status, xhr.statusText);
+                }
+            };
+        }
+
+        // 수정: prompt 대신 데이터를 가져와 모달을 여는 방식으로 변경
+        function updateData(id) {
+            const xhr = new XMLHttpRequest();
+
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.response);
+
+                    // 1. 모달 필드에 현재 데이터 채우기 (ID: edit-product 등으로 변경됨)
+                    document.getElementById("edit-product").value = data.product;
+                    document.getElementById("edit-price").value = data.price;
+                    document.getElementById("edit-material").value = data.material;
+                    document.getElementById("edit-count").value = data.count;
+
+                    // 2. 수정할 ID 저장 (저장 버튼 클릭 시 사용)
+                    document.getElementById("edit-id-holder").value = id;
+
+                    // 3. 모달 열기
+                    document.getElementById("editModal").classList.add("show");
+
+                } else {
+                    console.log(xhr.status, xhr.statusText);
+                    alert("Failed to fetch data for update.");
+                }
+            };
+
+            // 해당 ID의 데이터를 가져오기 위해 GET 요청을 보냅니다.
+            xhr.open("GET", "https://6909a7ab2d902d0651b49af9.mockapi.io/SampleProduct/" + id);
+            xhr.setRequestHeader("content-type", "application/json");
+            xhr.send();
+        }
+
+        // 수정된 데이터를 PUT 요청으로 저장하는 새로운 함수
+        function saveData() {
+            // 1. 모달에서 수정된 값과 ID 가져오기
+            const id = document.getElementById("edit-id-holder").value;
+            const newProduct = document.getElementById("edit-product").value;
+            const newPrice = document.getElementById("edit-price").value;
+            const newMaterial = document.getElementById("edit-material").value;
+            const newCount = document.getElementById("edit-count").value;
+
+            // 간단한 유효성 검사
+            if (!newProduct.trim() || !newPrice.trim() || !newMaterial.trim() || !newCount.trim()) {
+                alert("All fields must be filled out.");
+                return;
+            }
+
+            const xhr = new XMLHttpRequest();
+
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    console.log("Data updated successfully.");
+                    getStudents(); // 리스트 갱신
+                } else {
+                    console.log(xhr.status, xhr.statusText);
+                    alert("Fail update data: " + xhr.statusText);
+                }
+            };
+
+            xhr.open("PUT", "https://6909a7ab2d902d0651b49af9.mockapi.io/SampleProduct/" + id);
+            xhr.setRequestHeader("content-type", "application/json; charset=UTF-8");
+
+            const data = {
+                product: newProduct,
+                price: Number(newPrice),
+                material: newMaterial,
+                count: Number(newCount)
+            };
+
+            xhr.send(JSON.stringify(data));
+        }
+
+        function makeList(data) {
+            let str = "";
+            for (key in data) {
+                //console.log("Name :" + data[key].name + " , age :" + data[key].age);
+                str +=
+                    "<div id='" +
+                    data[key].id +
+                    "'><div class='content'>" +
+                    data[key].product +
+                    " x " +
+                    data[key].count +
+                    " (" +
+                    data[key].material +
+                    ")" +
+                    " [$" +
+                    data[key].price +
+                    "] </div>" +
+                    "<button onclick='updateData(\"" + // updateData 함수는 이제 모달을 엽니다.
+                    data[key].id +
+                    "\")'>Modify</button>" +
+                    "<button onclick='deleteData(\"" +
+                    data[key].id +
+                    "\")'>Delete</button></div>";
+            }
+            str = "<div>" + str + "</div>";
+            return str;
+        }
+    </script>
 </head>
+
 <body>
+    <button id="btnStu">Bring product data</button>
+    <div>
+        </div>
+
+    <button id="btn-modal" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+        Add New Product
+    </button>
+
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addModalLabel">Add New Product</h1>
+                    <span class="btn-close" id="btn-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="modal-input" id="product" size="10" placeholder="product name" />
+                    <input type="text" class="modal-input" id="price" size="5" placeholder="price" />
+                    <input type="text" class="modal-input" id="material" size="5" placeholder="material" />
+                    <input type="text" class="modal-input" id="count" size="5" placeholder="count" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="btn-Add" class="btn">Add data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editModalLabel">Modify Product</h1>
+                    <span class="btn-close" id="btn-edit-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="modal-input" id="edit-product" size="10" placeholder="product name" />
+                    <input type="text" class="modal-input" id="edit-price" size="5" placeholder="price" />
+                    <input type="text" class="modal-input" id="edit-material" size="5" placeholder="material" />
+                    <input type="text" class="modal-input" id="edit-count" size="5" placeholder="count" />
+                    <input type="hidden" id="edit-id-holder" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="btn-Save" class="btn">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
+    <div id="contents" style="height: 100%; background-color: lightgoldenrodyellow"></div>
 </body>
+
 </html>
