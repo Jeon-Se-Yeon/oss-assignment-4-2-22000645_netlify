@@ -6,97 +6,254 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Product Management</title>
     <style>
-        .content {
-            width: 80%;
-            height: 100%;
-            float: left;
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f9; /* Light background */
+            color: #333;
         }
 
-        div {
-            padding: 10px;
+        /* Buttons Styling */
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
         }
+
+        #btnStu {
+            background-color: #007bff; /* Primary blue */
+            color: white;
+        }
+
+        #btnStu:hover {
+            background-color: #0056b3;
+        }
+
+        #btn-modal {
+            background-color: #28a745; /* Success green */
+            color: white;
+            margin-left: 0; /* Align with fetch button */
+        }
+
+        #btn-modal:hover {
+            background-color: #1e7e34;
+        }
+
+        /* Content Area */
+        #contents {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #contents > div {
+            /* Container for product items */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Individual Product Item */
+        #contents > div > div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background-color: #fcfcfc;
+            border-radius: 4px;
+            transition: background-color 0.1s;
+        }
+
+        #contents > div > div:last-child {
+            border-bottom: none;
+        }
+
+        #contents > div > div:hover {
+            background-color: #f9f9f9;
+        }
+
+        .content {
+            /* Product info text */
+            flex-grow: 1;
+            font-size: 16px;
+            color: #555;
+            padding: 0;
+            float: none; /* Remove float */
+            width: auto; /* Remove fixed width */
+            height: auto;
+        }
+
+        /* Modify/Delete Buttons */
+        #contents button {
+            margin-left: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        #contents button:nth-of-type(1) { /* Modify button */
+            background-color: #ffc107; /* Yellow */
+            color: #333;
+        }
+
+        #contents button:nth-of-type(1):hover {
+            background-color: #e0a800;
+        }
+
+        #contents button:nth-of-type(2) { /* Delete button */
+            background-color: #dc3545; /* Red */
+            color: white;
+        }
+
+        #contents button:nth-of-type(2):hover {
+            background-color: #bd2130;
+        }
+
+        /* --- Modal Styles (Overhaul) --- */
 
         .modal {
-            /* 스타일 - customize */
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.5); /* Slightly lighter overlay */
             pointer-events: none;
-            padding: 20px;
-
-            /* 트랜지션 효과 */
-            transition: opacity 0.3s ease-in-out;
             opacity: 0;
+            transition: opacity 0.3s ease-in-out;
 
-            /* 화면 전체를 덮게하는 코드 */
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: 1000; /* Ensure it's above other content */
 
-            /* 중앙에 오게하는 코드 */
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        .modal-header,
-        .modal-title,
-        .btn-close {
-            font-size: 28px;
-            font-weight: bold;
-            display: inline;
-        }
-
-        .modal-body .modal-input {
-            display: block;
-            margin-top: 20px;
-        }
-
-        .modal-footer {
-            margin-top: 20px;
-            text-align: right;
+            padding: 0; /* Remove padding from modal overlay */
         }
 
         .modal-content {
-            /* 스타일 - customize */
-            max-width: 500px;
-            width: 100%;
-            height: 300px;
+            max-width: 450px; /* Slightly adjusted max-width */
+            width: 90%; /* Responsive width */
             background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-
-            /* 트랜지션 효과 */
+            
             opacity: 0;
-            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-
-            transform: scale(0.8);
+            transition: opacity 0.3s ease-in-out, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncier transition */
+            transform: scale(0.7);
         }
 
         .modal.show {
-            /* 모달이 열렸을 때 보여지게 하는 코드 */
             opacity: 1;
             pointer-events: auto;
         }
 
         .modal.show .modal-content {
-            /* 모달이 열렸을 때 보여지게 하는 코드 */
             opacity: 1;
             transform: scale(1);
         }
 
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding: 0 0 15px 0;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
         .btn-close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+            color: #999;
+            font-size: 32px;
+            font-weight: normal;
             cursor: pointer;
+            padding: 5px; /* Increase click area */
+            line-height: 1; /* Center the 'x' */
+            transition: color 0.2s;
         }
 
         .btn-close:hover {
-            color: black;
+            color: #333;
         }
+
+        .modal-body {
+            padding: 10px 0;
+        }
+
+        .modal-body .modal-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Include padding/border in element's total width */
+            font-size: 16px;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Modal Footer Buttons */
+        .modal-footer button {
+            padding: 8px 15px;
+            margin: 0;
+        }
+
+        .modal-footer button:nth-of-type(1) { /* Close Button */
+            background-color: #6c757d; /* Secondary gray */
+            color: white;
+        }
+
+        .modal-footer button:nth-of-type(1):hover {
+            background-color: #5a6268;
+        }
+
+        .modal-footer button:nth-of-type(2), 
+        #btn-Add, #btn-Save { /* Add data / Save changes Button */
+            background-color: #007bff; /* Primary blue */
+            color: white;
+        }
+        
+        #btn-Save {
+             background-color: #28a745; /* Green for Save */
+        }
+        
+        #btn-Save:hover {
+            background-color: #1e7e34;
+        }
+
+        .modal-footer button:nth-of-type(2):hover {
+            background-color: #0056b3;
+        }
+        
+        /* Utility */
+        input[type="text"]::placeholder {
+            color: #aaa;
+        }
+
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -154,11 +311,11 @@
             });
             btnAdd.addEventListener("click", function (event) {
                 postData();
-                toggleAddModal();
+                // toggleAddModal(); // postData 성공 후 닫도록 변경할 수 있음
             });
             btnSave.addEventListener("click", function (event) { // 저장 버튼 이벤트 추가
                 saveData(); // 데이터를 저장(PUT)하는 함수 호출
-                toggleEditModal();
+                // toggleEditModal(); // saveData 성공 후 닫도록 변경할 수 있음
             });
         };
 
@@ -186,7 +343,13 @@
             let material = document.getElementById("material");
             let count = document.getElementById("count");
 
+            if (!product.value.trim() || !price.value.trim() || !material.value.trim() || !count.value.trim()) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
             const xhr = new XMLHttpRequest();
+            var addModal = document.getElementById("addModal");
 
             xhr.onload = () => {
                 if (xhr.status == 201) {
@@ -194,10 +357,11 @@
                     price.value = "";
                     material.value = "";
                     count.value = "";
-                    // const res = JSON.parse(xhr.response);
                     getStudents();
+                    addModal.classList.remove("show"); // 성공 시 모달 닫기
                 } else {
                     console.log(xhr.status, xhr.statusText);
+                    alert("Failed to add product: " + xhr.statusText);
                 }
             };
 
@@ -220,10 +384,11 @@
             xhr.onload = () => {
                 if (xhr.status === 200) {
                     const res = JSON.parse(xhr.response);
-                    console.log(res);
+                    console.log("Deleted:", res);
                     getStudents();
                 } else {
                     console.log(xhr.status, xhr.statusText);
+                    alert("Failed to delete data: " + xhr.statusText);
                 }
             };
         }
@@ -231,6 +396,7 @@
         // 수정: prompt 대신 데이터를 가져와 모달을 여는 방식으로 변경
         function updateData(id) {
             const xhr = new XMLHttpRequest();
+            var editModal = document.getElementById("editModal");
 
             xhr.onload = () => {
                 if (xhr.status === 200) {
@@ -246,11 +412,11 @@
                     document.getElementById("edit-id-holder").value = id;
 
                     // 3. 모달 열기
-                    document.getElementById("editModal").classList.add("show");
+                    editModal.classList.add("show");
 
                 } else {
                     console.log(xhr.status, xhr.statusText);
-                    alert("Failed to fetch data for update.");
+                    alert("Failed to fetch data for update: " + xhr.statusText);
                 }
             };
 
@@ -268,11 +434,20 @@
             const newPrice = document.getElementById("edit-price").value;
             const newMaterial = document.getElementById("edit-material").value;
             const newCount = document.getElementById("edit-count").value;
+            var editModal = document.getElementById("editModal");
 
             // 간단한 유효성 검사
             if (!newProduct.trim() || !newPrice.trim() || !newMaterial.trim() || !newCount.trim()) {
                 alert("All fields must be filled out.");
                 return;
+            }
+            
+            // 숫자로 변환 가능한지 확인 (선택 사항이지만 유효성 강화)
+            const priceValue = Number(newPrice);
+            const countValue = Number(newCount);
+            if (isNaN(priceValue) || isNaN(countValue)) {
+                 alert("Price and Count must be valid numbers.");
+                 return;
             }
 
             const xhr = new XMLHttpRequest();
@@ -281,6 +456,7 @@
                 if (xhr.status === 200) {
                     console.log("Data updated successfully.");
                     getStudents(); // 리스트 갱신
+                    editModal.classList.remove("show"); // 성공 시 모달 닫기
                 } else {
                     console.log(xhr.status, xhr.statusText);
                     alert("Fail update data: " + xhr.statusText);
@@ -292,9 +468,9 @@
 
             const data = {
                 product: newProduct,
-                price: Number(newPrice),
+                price: priceValue,
                 material: newMaterial,
-                count: Number(newCount)
+                count: countValue
             };
 
             xhr.send(JSON.stringify(data));
@@ -324,6 +500,10 @@
                     data[key].id +
                     "\")'>Delete</button></div>";
             }
+            // Add a message if no data is present
+            if (data.length === 0) {
+                 str = "<div style='text-align: center; color: #999; padding: 30px;'>No products found. Click 'Bring product data' to fetch or 'Add New Product' to create one.</div>";
+            }
             str = "<div>" + str + "</div>";
             return str;
         }
@@ -331,13 +511,19 @@
 </head>
 
 <body>
+    <h1>Product Inventory Management</h1>
     <button id="btnStu">Bring product data</button>
-    <div>
-        </div>
-
+    
     <button id="btn-modal" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
         Add New Product
     </button>
+    
+    <div id="contents">
+        <div style='text-align: center; color: #999; padding: 30px;'>
+            Click "Bring product data" to load the list.
+        </div>
+    </div>
+
 
     <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -347,10 +533,10 @@
                     <span class="btn-close" id="btn-close">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <input type="text" class="modal-input" id="product" size="10" placeholder="product name" />
-                    <input type="text" class="modal-input" id="price" size="5" placeholder="price" />
-                    <input type="text" class="modal-input" id="material" size="5" placeholder="material" />
-                    <input type="text" class="modal-input" id="count" size="5" placeholder="count" />
+                    <input type="text" class="modal-input" id="product" size="10" placeholder="Product Name" />
+                    <input type="text" class="modal-input" id="price" size="5" placeholder="Price (e.g., 19.99)" />
+                    <input type="text" class="modal-input" id="material" size="5" placeholder="Material" />
+                    <input type="text" class="modal-input" id="count" size="5" placeholder="Count (Quantity)" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" data-bs-dismiss="modal">Close</button>
@@ -368,10 +554,10 @@
                     <span class="btn-close" id="btn-edit-close">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <input type="text" class="modal-input" id="edit-product" size="10" placeholder="product name" />
-                    <input type="text" class="modal-input" id="edit-price" size="5" placeholder="price" />
-                    <input type="text" class="modal-input" id="edit-material" size="5" placeholder="material" />
-                    <input type="text" class="modal-input" id="edit-count" size="5" placeholder="count" />
+                    <input type="text" class="modal-input" id="edit-product" size="10" placeholder="Product Name" />
+                    <input type="text" class="modal-input" id="edit-price" size="5" placeholder="Price (e.g., 19.99)" />
+                    <input type="text" class="modal-input" id="edit-material" size="5" placeholder="Material" />
+                    <input type="text" class="modal-input" id="edit-count" size="5" placeholder="Count (Quantity)" />
                     <input type="hidden" id="edit-id-holder" />
                 </div>
                 <div class="modal-footer">
@@ -381,8 +567,6 @@
             </div>
         </div>
     </div>
-    
-    <div id="contents" style="height: 100%; background-color: lightgoldenrodyellow"></div>
 </body>
 
 </html>
